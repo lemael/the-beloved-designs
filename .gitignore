@@ -1,0 +1,6 @@
+# OS / éditeurs
+.DS_Store
+.idea
+*.swp
+
+# Les sous-projets backend/ et frontend/ ont leur propre .gitignore dédié.

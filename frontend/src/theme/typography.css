@@ -1,0 +1,13 @@
+h1, h2, h3, .font-heading {
+  font-family: var(--font-heading);
+  letter-spacing: 0.02em;
+}
+
+body, p, span, button, input {
+  font-family: var(--font-body);
+}
+
+.tagline {
+  font-style: italic;
+  color: var(--color-gold-light);
+}
