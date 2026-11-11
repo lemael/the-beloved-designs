@@ -33,9 +33,6 @@ public class Address {
     @Builder.Default
     private String country = "Cameroun";
 
-    @Column(length = 30)
-    private String phone;
-
     @Column(name = "is_default", nullable = false)
     @Builder.Default
     private boolean isDefault = false;
