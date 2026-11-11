@@ -3,7 +3,8 @@ package com.beloveddesigns.auth.service;
 import com.beloveddesigns.auth.dto.AuthResponse;
 import com.beloveddesigns.auth.dto.LoginRequest;
 import com.beloveddesigns.auth.dto.RegisterRequest;
-import com.beloveddesigns.common.exception.BadRequestException;
+import com.beloveddesigns.except.BadRequestException;
+import com.beloveddesigns.except.ErrorMessages;
 import com.beloveddesigns.security.CustomUserDetailsService;
 import com.beloveddesigns.security.JwtService;
 import com.beloveddesigns.user.entity.Role;
@@ -36,11 +37,11 @@ public class AuthService {
     @Transactional
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByPhone(request.phone())) {
-            throw new BadRequestException("Un compte existe déjà avec ce numéro WhatsApp");
+            throw new BadRequestException(ErrorMessages.PHONE_ALREADY_USED);
         }
 
         Role clientRole = roleRepository.findByName(DEFAULT_ROLE)
-                .orElseThrow(() -> new IllegalStateException("Rôle par défaut manquant : " + DEFAULT_ROLE));
+                .orElseThrow(() -> new IllegalStateException(ErrorMessages.defaultRoleMissing(DEFAULT_ROLE)));
 
         User user = User.builder()
                 .phone(request.phone())
@@ -61,7 +62,7 @@ public class AuthService {
         );
 
         User user = userRepository.findByPhone(request.phone())
-                .orElseThrow(() -> new IllegalStateException("Utilisateur authentifié introuvable"));
+                .orElseThrow(() -> new IllegalStateException(ErrorMessages.AUTHENTICATED_USER_NOT_FOUND));
 
         return buildAuthResponse(user);
     }

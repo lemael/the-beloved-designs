@@ -1,4 +1,4 @@
-package com.beloveddesigns.common.exception;
+package com.beloveddesigns.except;
 
 public class BadRequestException extends RuntimeException {
 

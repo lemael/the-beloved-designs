@@ -1,4 +1,4 @@
-package com.beloveddesigns.common.response;
+package com.beloveddesigns.except;
 
 import java.time.Instant;
 import java.util.List;

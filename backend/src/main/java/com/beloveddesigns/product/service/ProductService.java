@@ -1,6 +1,7 @@
 package com.beloveddesigns.product.service;
 
-import com.beloveddesigns.common.exception.ResourceNotFoundException;
+import com.beloveddesigns.except.ErrorMessages;
+import com.beloveddesigns.except.ResourceNotFoundException;
 import com.beloveddesigns.product.dto.ProductResponse;
 import com.beloveddesigns.product.entity.Product;
 import com.beloveddesigns.product.entity.ProductImage;
@@ -32,7 +33,7 @@ public class ProductService {
 
     public ProductResponse findBySlug(String slug) {
         Product product = productRepository.findBySlug(slug)
-                .orElseThrow(() -> new ResourceNotFoundException("Produit introuvable : " + slug));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.productNotFound(slug)));
         return toResponse(product);
     }
 

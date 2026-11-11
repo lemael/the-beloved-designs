@@ -3,7 +3,8 @@ package com.beloveddesigns.category.service;
 import com.beloveddesigns.category.dto.CategoryResponse;
 import com.beloveddesigns.category.entity.Category;
 import com.beloveddesigns.category.repository.CategoryRepository;
-import com.beloveddesigns.common.exception.ResourceNotFoundException;
+import com.beloveddesigns.except.ErrorMessages;
+import com.beloveddesigns.except.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +26,7 @@ public class CategoryService {
 
     public CategoryResponse findBySlug(String slug) {
         Category category = categoryRepository.findBySlug(slug)
-                .orElseThrow(() -> new ResourceNotFoundException("Catégorie introuvable : " + slug));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.categoryNotFound(slug)));
         return toResponse(category);
     }
 

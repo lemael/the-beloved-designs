@@ -1,6 +1,5 @@
-package com.beloveddesigns.common.exception;
+package com.beloveddesigns.except;
 
-import com.beloveddesigns.common.response.ApiError;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +27,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ApiError> handleBadCredentials(BadCredentialsException ex, HttpServletRequest request) {
-        return buildResponse(HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS", "Numéro WhatsApp ou mot de passe incorrect", request, null);
+        return buildResponse(HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS", ErrorMessages.INVALID_CREDENTIALS, request, null);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -36,12 +35,12 @@ public class GlobalExceptionHandler {
         List<String> details = ex.getBindingResult().getFieldErrors().stream()
                 .map(FieldError::getDefaultMessage)
                 .toList();
-        return buildResponse(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", "Données invalides", request, details);
+        return buildResponse(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", ErrorMessages.VALIDATION_ERROR, request, details);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleUnexpected(Exception ex, HttpServletRequest request) {
-        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR", "Une erreur inattendue est survenue", request, null);
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR", ErrorMessages.INTERNAL_ERROR, request, null);
     }
 
     private ResponseEntity<ApiError> buildResponse(HttpStatus status, String code, String message,
