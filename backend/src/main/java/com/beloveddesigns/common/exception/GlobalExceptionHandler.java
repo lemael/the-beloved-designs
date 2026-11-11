@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ApiError> handleBadCredentials(BadCredentialsException ex, HttpServletRequest request) {
-        return buildResponse(HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS", "Email ou mot de passe incorrect", request, null);
+        return buildResponse(HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS", "Numéro WhatsApp ou mot de passe incorrect", request, null);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

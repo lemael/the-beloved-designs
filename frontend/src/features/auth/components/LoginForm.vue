@@ -5,7 +5,7 @@ import BaseInput from '@/components/common/BaseInput.vue'
 import BaseButton from '@/components/common/BaseButton.vue'
 import { useAuth } from '@/composables/useAuth'
 
-const email = ref('')
+const phone = ref('')
 const password = ref('')
 const error = ref<string | null>(null)
 const { login } = useAuth()
@@ -14,17 +14,17 @@ const router = useRouter()
 async function onSubmit() {
   error.value = null
   try {
-    await login({ email: email.value, password: password.value })
+    await login({ phone: phone.value, password: password.value })
     router.push('/')
   } catch {
-    error.value = 'Email ou mot de passe incorrect.'
+    error.value = 'Numéro WhatsApp ou mot de passe incorrect.'
   }
 }
 </script>
 
 <template>
   <form class="auth-form" @submit.prevent="onSubmit">
-    <BaseInput v-model="email" label="Email" type="email" />
+    <BaseInput v-model="phone" label="Numéro WhatsApp" type="tel" placeholder="+237612345678" />
     <BaseInput v-model="password" label="Mot de passe" type="password" />
     <p v-if="error" class="auth-form__error">{{ error }}</p>
     <BaseButton type="submit">Se connecter</BaseButton>

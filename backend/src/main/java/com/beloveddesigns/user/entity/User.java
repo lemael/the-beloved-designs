@@ -20,8 +20,8 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String email;
+    @Column(nullable = false, unique = true, length = 30)
+    private String phone;
 
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
@@ -31,9 +31,6 @@ public class User {
 
     @Column(name = "last_name", nullable = false, length = 100)
     private String lastName;
-
-    @Column(length = 30)
-    private String phone;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

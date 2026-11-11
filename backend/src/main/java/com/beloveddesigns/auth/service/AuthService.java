@@ -35,19 +35,18 @@ public class AuthService {
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
-        if (userRepository.existsByEmail(request.email())) {
-            throw new BadRequestException("Un compte existe déjà avec cet email");
+        if (userRepository.existsByPhone(request.phone())) {
+            throw new BadRequestException("Un compte existe déjà avec ce numéro WhatsApp");
         }
 
         Role clientRole = roleRepository.findByName(DEFAULT_ROLE)
                 .orElseThrow(() -> new IllegalStateException("Rôle par défaut manquant : " + DEFAULT_ROLE));
 
         User user = User.builder()
-                .email(request.email())
+                .phone(request.phone())
                 .passwordHash(passwordEncoder.encode(request.password()))
                 .firstName(request.firstName())
                 .lastName(request.lastName())
-                .phone(request.phone())
                 .roles(Set.of(clientRole))
                 .build();
 
@@ -58,20 +57,20 @@ public class AuthService {
 
     public AuthResponse login(LoginRequest request) {
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.email(), request.password())
+                new UsernamePasswordAuthenticationToken(request.phone(), request.password())
         );
 
-        User user = userRepository.findByEmail(request.email())
+        User user = userRepository.findByPhone(request.phone())
                 .orElseThrow(() -> new IllegalStateException("Utilisateur authentifié introuvable"));
 
         return buildAuthResponse(user);
     }
 
     private AuthResponse buildAuthResponse(User user) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
+        UserDetails userDetails = userDetailsService.loadUserByUsername(user.getPhone());
         String accessToken = jwtService.generateAccessToken(userDetails);
         String refreshToken = jwtService.generateRefreshToken(userDetails);
 
-        return new AuthResponse(accessToken, refreshToken, user.getEmail(), user.getFirstName(), user.getLastName());
+        return new AuthResponse(accessToken, refreshToken, user.getPhone(), user.getFirstName(), user.getLastName());
     }
 }

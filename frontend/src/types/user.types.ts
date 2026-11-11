@@ -1,5 +1,5 @@
 export interface AuthUser {
-  email: string
+  phone: string
   firstName: string
   lastName: string
 }
@@ -7,20 +7,19 @@ export interface AuthUser {
 export interface AuthResponse {
   accessToken: string
   refreshToken: string
-  email: string
+  phone: string
   firstName: string
   lastName: string
 }
 
 export interface RegisterPayload {
-  email: string
+  phone: string
   password: string
   firstName: string
   lastName: string
-  phone?: string
 }
 
 export interface LoginPayload {
-  email: string
+  phone: string
   password: string
 }

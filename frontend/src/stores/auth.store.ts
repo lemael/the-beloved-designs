@@ -24,9 +24,9 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated.value = false
   }
 
-  function applyAuthResponse(response: { accessToken: string; refreshToken: string; email: string; firstName: string; lastName: string }) {
+  function applyAuthResponse(response: { accessToken: string; refreshToken: string; phone: string; firstName: string; lastName: string }) {
     storageService.setTokens(response.accessToken, response.refreshToken)
-    user.value = { email: response.email, firstName: response.firstName, lastName: response.lastName }
+    user.value = { phone: response.phone, firstName: response.firstName, lastName: response.lastName }
     isAuthenticated.value = true
   }
 
