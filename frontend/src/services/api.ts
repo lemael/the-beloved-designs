@@ -33,8 +33,12 @@ api.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${data.accessToken}`
         return api(originalRequest)
       } catch (refreshError) {
-        storageService.clearTokens()
-        window.location.href = '/login'
+        // La tentative de rafraîchissement a échoué (token expiré) → on se déconnecte
+        if (refreshError.response?.status === 401) {
+          storageService.clearTokens()
+          window.location.href = '/login'
+          return Promise.reject(refreshError)
+        }
         return Promise.reject(refreshError)
       }
     }

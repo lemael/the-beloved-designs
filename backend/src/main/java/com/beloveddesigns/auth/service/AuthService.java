@@ -12,6 +12,7 @@ import com.beloveddesigns.user.entity.Role;
 import com.beloveddesigns.user.entity.User;
 import com.beloveddesigns.user.repository.RoleRepository;
 import com.beloveddesigns.user.repository.UserRepository;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
