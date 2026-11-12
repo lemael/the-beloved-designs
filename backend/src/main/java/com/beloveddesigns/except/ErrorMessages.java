@@ -11,8 +11,10 @@ public final class ErrorMessages {
     public static final String PHONE_ALREADY_USED = "Un compte existe déjà avec ce numéro WhatsApp";
     public static final String AUTHENTICATED_USER_NOT_FOUND = "Utilisateur authentifié introuvable";
     public static final String INVALID_PHONE_FORMAT =
-            "Numéro WhatsApp invalide (format international requis, ex: +237612345678)";
+            "Numéro WhatsApp invalide (format international requis, ex: +237****5678)";
     public static final String PASSWORD_TOO_SHORT = "Le mot de passe doit contenir au moins 8 caractères";
+    public static final String TOKEN_INVALID = "Jeton de rafraîchissement invalide";
+    public static final String TOKEN_EXPIRED = "Jeton d'accès expiré";
 
     public static String userNotFound(String phone) {
         return "Utilisateur introuvable : " + phone;

@@ -1,6 +1,7 @@
 package com.beloveddesigns.except;
 
 import jakarta.servlet.http.HttpServletRequest;
+import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -36,6 +37,11 @@ public class GlobalExceptionHandler {
                 .map(FieldError::getDefaultMessage)
                 .toList();
         return buildResponse(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", ErrorMessages.VALIDATION_ERROR, request, details);
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<ApiError> handleExpiredJwt(ExpiredJwtException ex, HttpServletRequest request) {
+        return buildResponse(HttpStatus.UNAUTHORIZED, "TOKEN_EXPIRED", ErrorMessages.TOKEN_EXPIRED, request, null);
     }
 
     @ExceptionHandler(Exception.class)

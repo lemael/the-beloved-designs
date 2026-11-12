@@ -3,6 +3,7 @@ package com.beloveddesigns.auth.service;
 import com.beloveddesigns.auth.dto.AuthResponse;
 import com.beloveddesigns.auth.dto.LoginRequest;
 import com.beloveddesigns.auth.dto.RegisterRequest;
+import com.beloveddesigns.auth.dto.RefreshRequest;
 import com.beloveddesigns.except.BadRequestException;
 import com.beloveddesigns.except.ErrorMessages;
 import com.beloveddesigns.security.CustomUserDetailsService;
@@ -68,10 +69,25 @@ public class AuthService {
     }
 
     private AuthResponse buildAuthResponse(User user) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(user.getPhone());
+        return buildAuthResponse(userDetailsService.loadUserByUsername(user.getPhone()));
+    }
+
+    private AuthResponse buildAuthResponse(UserDetails userDetails) {
+        String phone = userDetails.getUsername();
+        User user = userRepository.findByPhone(phone)
+                .orElseThrow(() -> new IllegalStateException(ErrorMessages.AUTHENTICATED_USER_NOT_FOUND));
         String accessToken = jwtService.generateAccessToken(userDetails);
         String refreshToken = jwtService.generateRefreshToken(userDetails);
 
         return new AuthResponse(accessToken, refreshToken, user.getPhone(), user.getFirstName(), user.getLastName());
+    }
+
+    public AuthResponse refresh(String refreshToken) {
+        String username = jwtService.extractUsername(refreshToken);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        if (!jwtService.isTokenValid(refreshToken, userDetails)) {
+            throw new BadRequestException(ErrorMessages.TOKEN_INVALID);
+        }
+        return buildAuthResponse(userDetails);
     }
 }

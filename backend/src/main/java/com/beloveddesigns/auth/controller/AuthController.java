@@ -3,6 +3,7 @@ package com.beloveddesigns.auth.controller;
 import com.beloveddesigns.auth.dto.AuthResponse;
 import com.beloveddesigns.auth.dto.LoginRequest;
 import com.beloveddesigns.auth.dto.RegisterRequest;
+import com.beloveddesigns.auth.dto.RefreshRequest;
 import com.beloveddesigns.auth.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,5 +30,10 @@ public class AuthController {
     @PostMapping("/login")
     public AuthResponse login(@Valid @RequestBody LoginRequest request) {
         return authService.login(request);
+    }
+
+    @PostMapping("/refresh")
+    public AuthResponse refresh(@Valid @RequestBody RefreshRequest request) {
+        return authService.refresh(request.refreshToken());
     }
 }
