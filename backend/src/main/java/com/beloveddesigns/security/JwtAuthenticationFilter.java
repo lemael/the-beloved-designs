@@ -1,9 +1,8 @@
-package com.beloveddesigns.security;
-
 import com.beloveddesigns.except.ApiError;
 import com.beloveddesigns.except.ErrorMessages;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -55,6 +54,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     HttpServletResponse.SC_UNAUTHORIZED,
                     "TOKEN_EXPIRED",
                     ErrorMessages.TOKEN_EXPIRED,
+                    request.getRequestURI(),
+                    null
+            );
+            objectMapper.writeValue(response.getOutputStream(), error);
+            return;
+        } catch (JwtException e) {
+            // Any other JWT error (malformed, signature, etc.) → return 401
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            ApiError error = new ApiError(
+                    Instant.now(),
+                    HttpServletResponse.SC_UNAUTHORIZED,
+                    "TOKEN_INVALID",
+                    ErrorMessages.TOKEN_INVALID,
                     request.getRequestURI(),
                     null
             );
