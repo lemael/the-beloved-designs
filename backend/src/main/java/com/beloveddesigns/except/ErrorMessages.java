@@ -29,4 +29,12 @@ public final class ErrorMessages {
     public static String productNotFound(String slug) {
         return "Produit introuvable : " + slug;
     }
+
+    public static String productNotFoundById(Long id) {
+        return "Produit introuvable : " + id;
+    }
+
+    public static String cartItemNotFound(Long itemId) {
+        return "Article du panier introuvable : " + itemId;
+    }
 }

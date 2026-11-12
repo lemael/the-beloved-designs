@@ -37,7 +37,7 @@ public class ProductService {
         return toResponse(product);
     }
 
-    private ProductResponse toResponse(Product product) {
+    public ProductResponse toResponse(Product product) {
         return new ProductResponse(
                 product.getId(),
                 product.getName(),
@@ -50,5 +50,10 @@ public class ProductService {
                 product.getImages().stream().map(ProductImage::getUrl).toList(),
                 product.getCategories().stream().map(c -> c.getSlug()).toList()
         );
+    }
+
+    public Product getProduct(Long productId) {
+        return productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.productNotFound(productId.toString())));
     }
 }
