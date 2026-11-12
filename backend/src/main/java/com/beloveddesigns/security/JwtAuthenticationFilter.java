@@ -1,10 +1,15 @@
 package com.beloveddesigns.security;
 
+import com.beloveddesigns.except.ApiError;
+import com.beloveddesigns.except.ErrorMessages;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,6 +19,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.time.Instant;
 
 @Component
 @RequiredArgsConstructor
@@ -21,6 +27,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final CustomUserDetailsService userDetailsService;
+    private final ObjectMapper objectMapper;
 
     @Override
     protected void doFilterInternal(
@@ -36,7 +43,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String token = authHeader.substring(7);
-        String username = jwtService.extractUsername(token);
+        String username = null;
+        try {
+            username = jwtService.extractUsername(token);
+        } catch (ExpiredJwtException e) {
+            // Token expired → return 401 with a proper JSON error body
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            ApiError error = new ApiError(
+                    Instant.now(),
+                    HttpServletResponse.SC_UNAUTHORIZED,
+                    "TOKEN_EXPIRED",
+                    ErrorMessages.TOKEN_EXPIRED,
+                    request.getRequestURI(),
+                    null
+            );
+            objectMapper.writeValue(response.getOutputStream(), error);
+            return;
+        }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
