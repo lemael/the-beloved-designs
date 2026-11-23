@@ -21,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -80,7 +81,12 @@ public class AuthService {
         String accessToken = jwtService.generateAccessToken(userDetails);
         String refreshToken = jwtService.generateRefreshToken(userDetails);
 
-        return new AuthResponse(accessToken, refreshToken, user.getPhone(), user.getFirstName(), user.getLastName());
+        List<String> roles = user.getRoles().stream()
+                .map(Role::getName)
+                .sorted()
+                .toList();
+
+        return new AuthResponse(accessToken, refreshToken, user.getPhone(), user.getFirstName(), user.getLastName(), roles);
     }
 
     public AuthResponse refresh(String refreshToken) {

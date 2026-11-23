@@ -1,7 +1,10 @@
+export type Role = 'CLIENT' | 'ADMIN'
+
 export interface AuthUser {
   phone: string
   firstName: string
   lastName: string
+  roles: Role[]
 }
 
 export interface AuthResponse {
@@ -10,6 +13,7 @@ export interface AuthResponse {
   phone: string
   firstName: string
   lastName: string
+  roles: Role[]
 }
 
 export interface RegisterPayload {

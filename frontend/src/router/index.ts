@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { requireAuth } from './guards'
+import { requireAdmin, requireAuth } from './guards'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -51,6 +51,53 @@ const router = createRouter({
       name: 'account',
       component: () => import('@/views/AccountView.vue'),
     },
+    // ---- Back-office (rôle ADMIN) ----
+    // Une seule route /admin : la connexion est l'enfant '' (public, affiché sans menu latéral),
+    // les autres enfants héritent de meta.requiresAdmin. Deux routes '/admin' distinctes
+    // feraient correspondre /admin à la route protégée → boucle de redirection.
+    {
+      path: '/admin',
+      component: () => import('@/components/layout/AdminLayout.vue'),
+      meta: { requiresAdmin: true },
+      children: [
+        {
+          path: '',
+          name: 'admin-login',
+          component: () => import('@/views/admin/AdminLoginView.vue'),
+          meta: { requiresAdmin: false, adminBare: true },
+        },
+        {
+          path: 'dashboard',
+          name: 'admin-dashboard',
+          component: () => import('@/views/admin/AdminDashboardView.vue'),
+        },
+        {
+          path: 'products',
+          name: 'admin-products',
+          component: () => import('@/views/admin/AdminProductListView.vue'),
+        },
+        {
+          path: 'products/new',
+          name: 'admin-product-new',
+          component: () => import('@/views/admin/AdminProductCreateView.vue'),
+        },
+        {
+          path: 'stock',
+          name: 'admin-stock',
+          component: () => import('@/views/admin/AdminStockView.vue'),
+        },
+        {
+          path: 'restocks',
+          name: 'admin-restocks',
+          component: () => import('@/views/admin/AdminRestockView.vue'),
+        },
+        {
+          path: 'reports/yearly',
+          name: 'admin-yearly-report',
+          component: () => import('@/views/admin/AdminYearlyReportView.vue'),
+        },
+      ],
+    },
     {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
@@ -58,5 +105,7 @@ const router = createRouter({
     },
   ],
 })
+
+router.beforeEach(requireAdmin)
 
 export default router

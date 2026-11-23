@@ -1,0 +1,214 @@
+/* Styles partagés du back-office (classes préfixées admin-), chargés par AdminLayout et AdminLoginView. */
+
+.admin-page__title {
+  font-family: var(--font-heading);
+  color: var(--color-gold);
+  margin: 0 0 var(--spacing-lg);
+}
+
+.admin-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.admin-card__title {
+  margin: 0 0 var(--spacing-md);
+  font-size: 1.05rem;
+  color: var(--color-gold-light);
+}
+
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.admin-stat {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+}
+
+.admin-stat__label {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.admin-stat__value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-top: var(--spacing-xs);
+}
+
+.admin-stat--danger .admin-stat__value {
+  color: var(--color-danger);
+}
+
+.admin-stat--warning .admin-stat__value {
+  color: var(--color-gold);
+}
+
+.admin-table-wrap {
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.admin-table th,
+.admin-table td {
+  text-align: left;
+  padding: var(--spacing-sm);
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+}
+
+.admin-table th {
+  color: var(--color-text-muted);
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.admin-table .num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.admin-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.admin-badge--danger {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+
+.admin-badge--warning {
+  border-color: var(--color-gold);
+  color: var(--color-gold);
+}
+
+.admin-badge--success {
+  border-color: var(--color-success);
+  color: #6fbf7a;
+}
+
+.admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.admin-form__row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.admin-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.admin-field > span {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.admin-field input,
+.admin-field select,
+.admin-field textarea,
+.admin-input {
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-sm);
+  color: var(--color-text);
+  font: inherit;
+}
+
+.admin-field input:focus,
+.admin-field select:focus,
+.admin-field textarea:focus,
+.admin-input:focus {
+  outline: none;
+  border-color: var(--color-gold);
+}
+
+.admin-check {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  cursor: pointer;
+}
+
+.admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+
+.admin-error {
+  color: var(--color-danger);
+  margin: 0;
+}
+
+.admin-success {
+  color: #6fbf7a;
+  margin: 0;
+}
+
+.admin-muted {
+  color: var(--color-text-muted);
+}
+
+.admin-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-md);
+}
+
+.admin-link-button {
+  background: none;
+  border: none;
+  color: var(--color-gold-light);
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+}
+
+.admin-link-button:disabled {
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

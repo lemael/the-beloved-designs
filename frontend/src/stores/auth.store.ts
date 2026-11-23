@@ -1,12 +1,16 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { authService } from '@/features/auth/services/auth.service'
 import { storageService } from '@/services/storage.service'
-import type { AuthUser, LoginPayload, RegisterPayload } from '@/types/user.types'
+import { toAuthUser } from '@/utils/auth-user'
+import type { AuthResponse, AuthUser, LoginPayload, RegisterPayload } from '@/types/user.types'
 
 export const useAuthStore = defineStore('auth', () => {
-  const user = ref<AuthUser | null>(null)
+  const user = ref<AuthUser | null>(storageService.getUser())
   const isAuthenticated = ref(!!storageService.getAccessToken())
+
+  // Confort d'interface uniquement : /api/admin/** est protégé côté backend (403 sans rôle ADMIN).
+  const isAdmin = computed(() => isAuthenticated.value && !!user.value?.roles.includes('ADMIN'))
 
   async function login(payload: LoginPayload) {
     const response = await authService.login(payload)
@@ -24,11 +28,13 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated.value = false
   }
 
-  function applyAuthResponse(response: { accessToken: string; refreshToken: string; phone: string; firstName: string; lastName: string }) {
+  function applyAuthResponse(response: AuthResponse) {
     storageService.setTokens(response.accessToken, response.refreshToken)
-    user.value = { phone: response.phone, firstName: response.firstName, lastName: response.lastName }
+    user.value = toAuthUser(response)
+    storageService.setUser(user.value)
     isAuthenticated.value = true
   }
 
-  return { user, isAuthenticated, login, register, logout }
+  return { user, isAuthenticated, isAdmin, login, register, logout }
 })
+
