@@ -10,10 +10,14 @@ defineProps<{ product: Product }>()
   <RouterLink :to="`/products/${product.slug}`" class="product-card">
     <div class="product-card__image">
       <img v-if="product.imageUrls[0]" :src="product.imageUrls[0]" :alt="product.name" />
-      <ProductBadge class="product-card__badge" :featured="product.featured" />
+      <ProductBadge
+        class="product-card__badge"
+        :featured="product.featured"
+        :discount-percent="product.discountPercent"
+      />
     </div>
     <h3 class="product-card__name">{{ product.name }}</h3>
-    <ProductPrice :price="product.price" :currency="product.currency" />
+    <ProductPrice :price="product.price" :promo-price="product.promoPrice" :currency="product.currency" />
   </RouterLink>
 </template>
 

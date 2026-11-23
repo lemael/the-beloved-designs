@@ -33,7 +33,7 @@ watch(() => route.params.slug, load)
       </div>
       <div class="product-detail__info">
         <h1 class="font-heading">{{ product.name }}</h1>
-        <ProductPrice :price="product.price" :currency="product.currency" />
+        <ProductPrice :price="product.price" :promo-price="product.promoPrice" :currency="product.currency" />
         <p>{{ product.description }}</p>
         <BaseButton @click="addItem(product.id)">Ajouter au panier</BaseButton>
       </div>

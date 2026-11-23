@@ -3,6 +3,10 @@ package com.beloveddesigns.product.dto;
 import java.math.BigDecimal;
 import java.util.List;
 
+/**
+ * @param discountPercent réduction en cours (null si le produit n'est pas en promotion)
+ * @param promoPrice      prix après réduction (null si pas de promotion) ; price reste le prix normal
+ */
 public record ProductResponse(
         Long id,
         String name,
@@ -13,6 +17,8 @@ public record ProductResponse(
         Integer stockQuantity,
         boolean featured,
         List<String> imageUrls,
-        List<String> categorySlugs
+        List<String> categorySlugs,
+        BigDecimal discountPercent,
+        BigDecimal promoPrice
 ) {
 }
