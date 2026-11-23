@@ -17,3 +17,24 @@ override.tf
 override.tf.json
 *_override.tf
 *_override.tf.json
+
+# Data (data/) — fichiers temporaires et secrets jamais commités
+# Fichiers de la boutique : peuvent contenir des données personnelles (clients) et financières
+*.xlsx
+*.xls
+samples/
+# Verrous LibreOffice / Excel créés à l'ouverture d'un fichier
+.~lock.*#
+~$*
+# Générés par dbt
+data/dbt/target/
+data/dbt/logs/
+data/dbt/dbt_packages/
+data/dbt/.user.yml
+# Python
+.venv/
+__pycache__/
+*.pyc
+# Variables locales (identifiants) — profiles.yml, lui, est commité car il n'utilise que env_var()
+.env
+.env.*

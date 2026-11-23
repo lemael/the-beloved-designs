@@ -1,0 +1,6 @@
+*.xlsx
+samples/
+dbt/target/
+dbt/logs/
+dbt/dbt_packages/
+.venv/

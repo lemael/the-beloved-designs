@@ -1,0 +1,16 @@
+# Profil de connexion dbt — AUCUN identifiant en dur : tout vient des variables DB_* (mêmes noms que le backend).
+# Local : variables fournies par le service `data` de docker-compose.yml (base Docker).
+# Prod  : variables fournies par Railway au futur service dbt.
+the_beloved_designs:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('DB_HOST') }}"
+      port: "{{ env_var('DB_PORT') | int }}"
+      dbname: "{{ env_var('DB_NAME') }}"
+      user: "{{ env_var('DB_USERNAME') }}"
+      password: "{{ env_var('DB_PASSWORD') }}"
+      # Schéma par défaut des modèles. JAMAIS beloved_designs (schéma de l'application, validé par Hibernate).
+      schema: staging
+      threads: 4

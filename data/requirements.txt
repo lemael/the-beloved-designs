@@ -1,0 +1,9 @@
+# Versions figées : une image reconstruite plus tard doit installer exactement la même chose.
+# dbt v1 stable (décision du 2026-11-23, voir decisions.md) — ne pas passer en v2 sans décision.
+dbt-core==1.12.7
+dbt-postgres==1.11.0
+
+# Chargeur Excel -> schéma raw (data/loader/)
+pandas==3.1.1
+openpyxl==3.1.5
+psycopg[binary]==3.3.9

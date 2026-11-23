@@ -37,5 +37,23 @@ services:
     depends_on:
       - backend
 
+  data:
+    build: ./data
+    profiles: ["data"]          # ne démarre pas avec un simple "docker compose up"
+    user: "${UID:-1000}:${GID:-1000}"
+    working_dir: /app/dbt
+    environment:
+      DB_HOST: db               # dans Docker, la base s'appelle "db", pas "localhost"
+      DB_PORT: 5432
+      DB_NAME: beloved_designs
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      DBT_PROFILES_DIR: /app/dbt
+    volumes:
+      - ./data:/app             # tes modifications sont visibles sans rebuild
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   db_data:
