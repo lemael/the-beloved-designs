@@ -1,0 +1,70 @@
+version: 2
+
+# Tables au format de l'application, publiées par data/publisher/publish.py.
+models:
+  - name: app_products
+    description: "Produits valides au format de beloved_designs.products (une référence Excel = un produit)."
+    columns:
+      - name: reference
+        description: Référence Excel (SAC-001).
+        data_tests: [not_null, unique]
+      - name: slug_prefix
+        description: "Début du slug propre à la référence (sac-001-) : sert à retrouver le produit au prochain import."
+        data_tests: [not_null, unique]
+      - name: slug
+        description: "Slug d'URL : référence + nom (sac-001-sac-cabas-cuir-elegance)."
+        data_tests: [not_null, unique]
+      - name: name
+        description: Nom affiché sur le site, taille et couleur comprises.
+        data_tests: [not_null]
+      - name: price
+        description: Prix de vente en FCFA.
+        data_tests:
+          - not_null
+          - value_at_least: {arguments: {min_value: 0.01}}
+      - name: stock_quantity
+        description: Stock issu de la feuille Stock (0 si absent ou invalide).
+        data_tests:
+          - not_null
+          - value_at_least: {arguments: {min_value: 0}}
+      - name: is_active
+        data_tests: [not_null]
+      - name: category_slug
+        description: Catégorie de la boutique (doit exister dans beloved_designs.categories).
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments: {values: ['femmes', 'hommes', 'chaussures', 'sacs-a-main', 'cosmetiques']}
+
+  - name: app_promotions
+    description: "Promotions valides au format de beloved_designs.promotions, avec le produit concerné."
+    columns:
+      - name: product_slug_prefix
+        data_tests:
+          - not_null
+          - relationships:
+              arguments: {to: ref('app_products'), field: slug_prefix}
+      - name: label
+        data_tests: [not_null]
+      - name: discount_percent
+        data_tests:
+          - not_null
+          - value_at_least: {arguments: {min_value: 1}}
+      - name: starts_at
+        data_tests: [not_null]
+      - name: ends_at
+        data_tests: [not_null]
+
+  - name: app_customers
+    description: "Clients ayant au moins une vente valide, au format de beloved_designs.users (DONNÉES PERSONNELLES)."
+    columns:
+      - name: customer_number
+        data_tests: [not_null, unique]
+      - name: phone
+        description: Téléphone international, identifiant de connexion dans l'application.
+        data_tests: [not_null, unique]
+      - name: first_name
+        data_tests: [not_null]
+      - name: last_name
+        description: Peut être vide si le nom ne contient qu'un mot.
+        data_tests: [not_null]

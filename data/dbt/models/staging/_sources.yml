@@ -1,0 +1,23 @@
+version: 2
+
+sources:
+  - name: raw
+    description: >
+      Données brutes de la boutique, chargées telles quelles (tout en texte) depuis le fichier Excel
+      par data/loader/load_excel.py. Chaque chargement remplace les tables. Ne jamais lire ces tables
+      directement dans un modèle : passer par source('raw', ...).
+    schema: raw
+    loaded_at_field: _loaded_at
+    tables:
+      - name: produits
+        description: Feuille Excel « Produits » (une ligne par référence, taille/couleur comprises).
+      - name: stock
+        description: Feuille Excel « Stock » (inventaire par référence).
+      - name: ventes
+        description: Feuille Excel « Ventes » (une ligne par vente d'une référence).
+      - name: ravitaillements
+        description: Feuille Excel « Ravitaillements » (livraisons fournisseurs prévues, reçues ou annulées).
+      - name: clients
+        description: Feuille Excel « Clients actuels » (contient des données personnelles).
+      - name: promotions
+        description: Feuille Excel « Produits en promotion ».

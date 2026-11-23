@@ -26,6 +26,8 @@ from psycopg import sql
 
 # Seul schéma dans lequel le chargeur a le droit d'écrire.
 RAW_SCHEMA = "raw"
+# Schémas du pipeline : seules leurs vues peuvent être supprimées (puis recréées par dbt) lors d'un rechargement.
+PIPELINE_SCHEMAS = ("raw", "staging", "marts")
 
 # Feuilles chargées -> nom de la table dans raw.
 # Feuilles volontairement NON chargées : "À lire" (documentation) et les feuilles calculées
@@ -116,6 +118,41 @@ def read_sheet(ws, ws_formulas, source_file: str) -> tuple[list[str], list[list[
     return columns, data, warnings
 
 
+def check_dependents(cur, tables: list[str]) -> None:
+    """Refuse de remplacer les tables raw si un objet HORS du pipeline en dépend (DROP ... CASCADE le supprimerait).
+    Base partagée : ne jamais supprimer une vue de l'application ou d'agri-dashboard."""
+    cur.execute(
+        """
+        WITH RECURSIVE deps AS (
+            SELECT DISTINCT v.oid, v.relname, vn.nspname
+            FROM pg_depend d
+            JOIN pg_rewrite r ON r.oid = d.objid
+            JOIN pg_class v ON v.oid = r.ev_class
+            JOIN pg_namespace vn ON vn.oid = v.relnamespace
+            JOIN pg_class t ON t.oid = d.refobjid
+            JOIN pg_namespace tn ON tn.oid = t.relnamespace
+            WHERE tn.nspname = %s AND t.relname = ANY(%s) AND v.oid <> t.oid
+            UNION
+            SELECT v.oid, v.relname, vn.nspname
+            FROM deps
+            JOIN pg_depend d ON d.refobjid = deps.oid
+            JOIN pg_rewrite r ON r.oid = d.objid
+            JOIN pg_class v ON v.oid = r.ev_class
+            JOIN pg_namespace vn ON vn.oid = v.relnamespace
+            WHERE v.oid <> deps.oid
+        )
+        SELECT DISTINCT nspname || '.' || relname FROM deps WHERE nspname <> ALL(%s) ORDER BY 1
+        """,
+        (RAW_SCHEMA, tables, list(PIPELINE_SCHEMAS)),
+    )
+    outside = [row[0] for row in cur.fetchall()]
+    if outside:
+        sys.exit(
+            "Refus : des objets hors du pipeline dépendent des tables raw et seraient supprimés : "
+            + ", ".join(outside)
+        )
+
+
 def connect() -> psycopg.Connection:
     missing = [v for v in ("DB_HOST", "DB_PORT", "DB_NAME", "DB_USERNAME", "DB_PASSWORD") if not os.environ.get(v)]
     if missing:
@@ -170,9 +207,11 @@ def load(path: Path, dry_run: bool) -> None:
     # Une seule transaction : soit toutes les tables sont remplacées, soit aucune (base jamais à moitié chargée).
     with connect() as conn, conn.cursor() as cur:
         cur.execute(sql.SQL("CREATE SCHEMA IF NOT EXISTS {}").format(sql.Identifier(RAW_SCHEMA)))
+        check_dependents(cur, list(tables))
         for table, (columns, rows) in tables.items():
             target = sql.Identifier(RAW_SCHEMA, table)
-            cur.execute(sql.SQL("DROP TABLE IF EXISTS {}").format(target))
+            # CASCADE : supprime aussi les vues dbt (staging) qui lisent ces tables ; `dbt build` les recrée.
+            cur.execute(sql.SQL("DROP TABLE IF EXISTS {} CASCADE").format(target))
             column_defs = [sql.SQL("{} text").format(sql.Identifier(c)) for c in columns]
             column_defs += [
                 sql.SQL("_source_file text NOT NULL"),

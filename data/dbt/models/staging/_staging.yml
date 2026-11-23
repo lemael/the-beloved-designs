@@ -1,0 +1,179 @@
+version: 2
+
+# Règle des tests :
+# - tests STRICTS (erreur, bloquent dbt build) sur les lignes valides : where "is_valid" ;
+# - les erreurs de saisie de la boutique ne bloquent pas : elles sont listées dans stg_anomalies
+#   et remontées en AVERTISSEMENT par le test tests/anomalies_de_saisie.sql.
+
+models:
+  - name: stg_produits
+    description: Produits du fichier Excel, typés. Toutes les lignes sont conservées ; is_valid indique si la ligne est exploitable.
+    columns:
+      - name: product_reference
+        description: Référence produit (ex. SAC-001), en majuscules.
+        data_tests:
+          - not_null: {config: {where: "is_valid"}}
+          - unique: {config: {where: "is_valid"}}
+      - name: category_slug
+        description: Catégorie de la boutique (mêmes slugs que l'application).
+        data_tests:
+          - accepted_values:
+              arguments: {values: ['femmes', 'hommes', 'chaussures', 'sacs-a-main', 'cosmetiques']}
+              config: {where: "is_valid"}
+      - name: sale_price
+        description: Prix de vente en FCFA.
+        data_tests:
+          - not_null: {config: {where: "is_valid"}}
+          - value_at_least: {arguments: {min_value: 0.01}, config: {where: "is_valid"}}
+      - name: purchase_price
+        description: Prix d'achat en FCFA (facultatif).
+        data_tests:
+          - value_at_least: {arguments: {min_value: 0}, config: {where: "is_valid"}}
+      - name: is_valid
+        description: Vrai si la ligne n'a aucun problème de saisie.
+        data_tests: [not_null]
+      - name: invalid_reasons
+        description: Problèmes de saisie de la ligne, en français (vide si la ligne est valide).
+      - name: source_row
+        description: Numéro de ligne dans la feuille Excel.
+        data_tests: [not_null, unique]
+
+  - name: stg_stock
+    description: Inventaire par référence, typé.
+    columns:
+      - name: product_reference
+        description: Référence produit.
+        data_tests:
+          - not_null: {config: {where: "is_valid"}}
+          - unique: {config: {where: "is_valid"}}
+          - relationships:
+              arguments: {to: ref('stg_produits'), field: product_reference}
+              config: {where: "is_valid"}
+      - name: stock_quantity
+        description: Quantité en stock à la date d'inventaire.
+        data_tests:
+          - not_null: {config: {where: "is_valid"}}
+          - value_at_least: {arguments: {min_value: 0}, config: {where: "is_valid"}}
+      - name: inventory_date
+        description: Date de l'inventaire.
+        data_tests:
+          - not_null: {config: {where: "is_valid"}}
+      - name: source_row
+        description: Numéro de ligne dans la feuille Excel.
+        data_tests: [not_null, unique]
+
+  - name: stg_ventes
+    description: Ventes, typées. line_amount = quantité x prix unitaire.
+    columns:
+      - name: sale_number
+        description: Numéro de vente (ex. V-2026-0001).
+        data_tests:
+          - not_null: {config: {where: "is_valid"}}
+          - unique: {config: {where: "is_valid"}}
+      - name: sale_date
+        description: Date de la vente.
+        data_tests:
+          - not_null: {config: {where: "is_valid"}}
+      - name: product_reference
+        description: Référence du produit vendu.
+        data_tests:
+          - relationships:
+              arguments: {to: ref('stg_produits'), field: product_reference}
+              config: {where: "is_valid"}
+      - name: quantity
+        description: Quantité vendue.
+        data_tests:
+          - value_at_least: {arguments: {min_value: 1}, config: {where: "is_valid"}}
+      - name: unit_price
+        description: Prix unitaire en FCFA.
+        data_tests:
+          - value_at_least: {arguments: {min_value: 0.01}, config: {where: "is_valid"}}
+      - name: payment_method
+        description: Mode de paiement.
+        data_tests:
+          - accepted_values:
+              arguments: {values: ['Orange Money', 'MTN MoMo', 'Espèces']}
+              config: {where: "is_valid"}
+      - name: city
+        description: Ville de la vente, normalisée (majuscule initiale, sans espaces superflus).
+      - name: customer_number
+        description: "Numéro du client (feuille Clients) ; vide = vente au comptoir."
+        data_tests:
+          - relationships:
+              arguments: {to: ref('stg_clients'), field: customer_number}
+              config: {where: "is_valid"}
+      - name: source_row
+        description: Numéro de ligne dans la feuille Excel.
+        data_tests: [not_null, unique]
+
+  - name: stg_ravitaillements
+    description: Ravitaillements fournisseurs, typés ; statuts alignés sur le back-office.
+    columns:
+      - name: expected_date
+        description: Date de livraison prévue.
+        data_tests:
+          - not_null: {config: {where: "is_valid"}}
+      - name: product_reference
+        description: Référence du produit livré.
+        data_tests:
+          - relationships:
+              arguments: {to: ref('stg_produits'), field: product_reference}
+              config: {where: "is_valid"}
+      - name: quantity
+        description: Quantité attendue.
+        data_tests:
+          - value_at_least: {arguments: {min_value: 1}, config: {where: "is_valid"}}
+      - name: status
+        description: PREVU, RECU ou ANNULE (comme les ravitaillements du back-office).
+        data_tests:
+          - accepted_values:
+              arguments: {values: ['PREVU', 'RECU', 'ANNULE']}
+              config: {where: "is_valid"}
+      - name: source_row
+        description: Numéro de ligne dans la feuille Excel.
+        data_tests: [not_null, unique]
+
+  - name: stg_clients
+    description: "Clients (DONNÉES PERSONNELLES : ne pas exposer hors du back-office)."
+    columns:
+      - name: customer_number
+        description: Numéro client (ex. C-001).
+        data_tests:
+          - not_null: {config: {where: "is_valid"}}
+          - unique: {config: {where: "is_valid"}}
+      - name: phone
+        description: Téléphone au format international (même règle que les comptes de l'application).
+        data_tests:
+          - not_null: {config: {where: "is_valid"}}
+          - unique: {config: {where: "is_valid"}}
+      - name: source_row
+        description: Numéro de ligne dans la feuille Excel.
+        data_tests: [not_null, unique]
+
+  - name: stg_promotions
+    description: Promotions ; promo_price est recalculé, promo_price_from_file est la valeur lue dans l'Excel (souvent vide si formule non recalculée).
+    columns:
+      - name: product_reference
+        description: Référence du produit en promotion.
+        data_tests:
+          - relationships:
+              arguments: {to: ref('stg_produits'), field: product_reference}
+              config: {where: "is_valid"}
+      - name: discount_percent
+        description: Réduction en pourcentage (1 à 100).
+        data_tests:
+          - value_at_least: {arguments: {min_value: 1}, config: {where: "is_valid"}}
+      - name: status
+        description: ACTIVE, A_VENIR ou TERMINEE.
+        data_tests:
+          - accepted_values:
+              arguments: {values: ['ACTIVE', 'A_VENIR', 'TERMINEE']}
+              config: {where: "is_valid"}
+      - name: source_row
+        description: Numéro de ligne dans la feuille Excel.
+        data_tests: [not_null, unique]
+
+  - name: stg_anomalies
+    description: >
+      Liste de toutes les lignes invalides du fichier (feuille, ligne Excel, identifiant, problèmes en français).
+      C'est la liste à renvoyer à la boutique pour correction. Vide = fichier propre.
