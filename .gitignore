@@ -4,3 +4,16 @@
 *.swp
 
 # Les sous-projets backend/ et frontend/ ont leur propre .gitignore dédié.
+
+# Terraform (infra/) — state et secrets jamais commités
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
