@@ -6,3 +6,6 @@ dbt-postgres==1.11.0
 # Chargeur Excel -> schéma raw (data/loader/)
 openpyxl==3.1.5
 psycopg[binary]==3.3.9
+
+# Lecture du fichier Excel dans le bucket Railway (run_pipeline.py)
+boto3==1.44.10
