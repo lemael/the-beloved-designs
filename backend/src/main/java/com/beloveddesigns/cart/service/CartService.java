@@ -9,6 +9,7 @@ import com.beloveddesigns.cart.entity.CartItem;
 import com.beloveddesigns.cart.repository.CartItemRepository;
 import com.beloveddesigns.cart.repository.CartRepository;
 import com.beloveddesigns.except.ErrorMessages;
+import com.beloveddesigns.except.InsufficientStockException;
 import com.beloveddesigns.except.ResourceNotFoundException;
 import com.beloveddesigns.product.entity.Product;
 import com.beloveddesigns.product.service.ProductService;
@@ -34,24 +35,35 @@ public class CartService {
         return toResponse(cart);
     }
 
+    /**
+     * Ajoute un produit (ou augmente la quantité de sa ligne). Refuse un produit désactivé (404) et une
+     * quantité totale supérieure au stock (409). Le prix enregistré est le prix facturé aujourd'hui
+     * (promo comprise), recalculé à chaque ajout. Le stock n'est pas réservé : il sera revérifié et
+     * décrémenté au moment de la commande.
+     */
     public CartItemResponse addItem(User user, AddCartItemRequest request) {
         Cart cart = getOrCreateCart(user);
-        Product product = productService.getProduct(request.productId());
+        Product product = productService.getActiveProduct(request.productId());
 
         CartItem existingItem = cart.getItems().stream()
                 .filter(item -> item.getProduct().getId().equals(product.getId()))
                 .findFirst()
                 .orElse(null);
 
+        int alreadyInCart = existingItem == null ? 0 : existingItem.getQuantity();
+        ensureInStock(product, alreadyInCart, alreadyInCart + request.quantity());
+        BigDecimal unitPrice = productService.currentPrice(product);
+
         if (existingItem != null) {
             existingItem.addQuantity(request.quantity());
+            existingItem.setUnitPrice(unitPrice);
             cartItemRepository.save(existingItem);
         } else {
             CartItem newItem = CartItem.builder()
                     .cart(cart)
                     .product(product)
                     .quantity(request.quantity())
-                    .unitPrice(product.getPrice())
+                    .unitPrice(unitPrice)
                     .build();
             cart.getItems().add(newItem);
             cartItemRepository.save(newItem);
@@ -77,8 +89,9 @@ public class CartService {
         CartItem item = cart.getItems().stream()
                 .filter(i -> i.getId().equals(cartItemId))
                 .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("Item not found in cart"));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.cartItemNotFound(cartItemId)));
 
+        ensureInStock(item.getProduct(), item.getQuantity(), request.quantity());
         item.setQuantity(request.quantity());
         cartItemRepository.save(item);
         cart.setUpdatedAt(Instant.now());
@@ -96,7 +109,7 @@ public class CartService {
         CartItem item = cart.getItems().stream()
                 .filter(i -> i.getId().equals(cartItemId))
                 .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("Item not found in cart"));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.cartItemNotFound(cartItemId)));
 
         cart.getItems().remove(item);
         cartItemRepository.delete(item);
@@ -109,6 +122,17 @@ public class CartService {
         cart.getItems().clear();
         cart.setUpdatedAt(Instant.now());
         cartRepository.save(cart);
+    }
+
+    /**
+     * Refuse une quantité totale (pour cette ligne) supérieure au stock du produit.
+     * {@code alreadyInCart} sert uniquement au message : « plus que N disponible(s) » en plus de ce qui est déjà au panier.
+     */
+    private static void ensureInStock(Product product, int alreadyInCart, int requestedTotal) {
+        int stock = product.getStockQuantity();
+        if (requestedTotal > stock) {
+            throw new InsufficientStockException(stock - alreadyInCart);
+        }
     }
 
     private Cart findCartForUser(User user) {

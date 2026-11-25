@@ -11,6 +11,7 @@ public final class ErrorMessages {
     public static final String INTERNAL_ERROR = "Une erreur inattendue est survenue";
     public static final String PHONE_ALREADY_USED = "Un compte existe déjà avec ce numéro WhatsApp";
     public static final String AUTHENTICATED_USER_NOT_FOUND = "Utilisateur authentifié introuvable";
+    public static final String AUTHENTICATION_REQUIRED = "Connectez-vous pour continuer";
     public static final String INVALID_PHONE_FORMAT =
             "Numéro WhatsApp invalide (format international requis, ex: +237****5678)";
     public static final String PASSWORD_TOO_SHORT = "Le mot de passe doit contenir au moins 8 caractères";
@@ -55,6 +56,12 @@ public final class ErrorMessages {
 
     public static String cartItemNotFound(Long itemId) {
         return "Article du panier introuvable : " + itemId;
+    }
+
+    public static String insufficientStock(int available) {
+        return available <= 0
+                ? "Ce produit n'est plus en stock"
+                : "Stock insuffisant : plus que " + available + " disponible(s)";
     }
 
     public static String productSlugAlreadyUsed(String slug) {

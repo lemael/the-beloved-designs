@@ -73,10 +73,33 @@ public class ProductService {
                         PromotionRepository.ProductDiscountView::getDiscountPercent));
     }
 
-    private ProductResponse toResponse(Product product, BigDecimal discountPercent) {
-        BigDecimal promoPrice = discountPercent == null ? null : product.getPrice()
+    /**
+     * Prix réellement facturé aujourd'hui : prix promo s'il y a une réduction en cours, sinon prix normal.
+     * Même calcul que le prix affiché sur le site (pas de cumul, plus forte réduction, arrondi au FCFA).
+     */
+    public BigDecimal currentPrice(Product product) {
+        BigDecimal discountPercent = currentDiscounts(List.of(product.getId())).get(product.getId());
+        BigDecimal promoPrice = promoPrice(product, discountPercent);
+        return promoPrice != null ? promoPrice : product.getPrice();
+    }
+
+    /** Produit vendable : existe et actif. Un produit désactivé est traité comme introuvable. */
+    public Product getActiveProduct(Long productId) {
+        Product product = getProduct(productId);
+        if (!product.isActive()) {
+            throw new ResourceNotFoundException(ErrorMessages.productNotFoundById(productId));
+        }
+        return product;
+    }
+
+    private static BigDecimal promoPrice(Product product, BigDecimal discountPercent) {
+        return discountPercent == null ? null : product.getPrice()
                 .multiply(BigDecimal.valueOf(100).subtract(discountPercent))
                 .divide(BigDecimal.valueOf(100), 0, RoundingMode.HALF_UP);  // FCFA : pas de centimes
+    }
+
+    private ProductResponse toResponse(Product product, BigDecimal discountPercent) {
+        BigDecimal promoPrice = promoPrice(product, discountPercent);
         return new ProductResponse(
                 product.getId(),
                 product.getName(),
