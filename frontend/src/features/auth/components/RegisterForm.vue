@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import BaseInput from '@/components/common/BaseInput.vue'
 import BaseButton from '@/components/common/BaseButton.vue'
 import { useAuth } from '@/composables/useAuth'
+import { safeRedirect } from '@/utils/redirect'
 import { isStrongEnoughPassword, isValidPhone } from '@/utils/validators'
 
 const firstName = ref('')
@@ -13,6 +14,7 @@ const password = ref('')
 const error = ref<string | null>(null)
 const { register } = useAuth()
 const router = useRouter()
+const route = useRoute()
 
 async function onSubmit() {
   error.value = null
@@ -33,7 +35,8 @@ async function onSubmit() {
       firstName: firstName.value,
       lastName: lastName.value,
     })
-    router.push('/')
+    // Retour à la page d'où vient le client (ex. fiche produit après « Ajouter au panier »)
+    router.push(safeRedirect(route.query.redirect))
   } catch {
     error.value = 'Impossible de créer le compte. Ce numéro WhatsApp est peut-être déjà utilisé.'
   }

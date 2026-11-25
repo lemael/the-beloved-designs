@@ -33,6 +33,8 @@ const router = createRouter({
       path: '/cart',
       name: 'cart',
       component: () => import('@/views/CartView.vue'),
+      // Le panier est lié au compte (API /api/cart protégée)
+      beforeEnter: requireAuth,
     },
     {
       path: '/checkout',

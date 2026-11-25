@@ -77,11 +77,7 @@ public class CartService {
                 .findFirst()
                 .orElseThrow();
 
-        return new CartItemResponse(
-                item.getId(),
-                productService.toResponse(item.getProduct()),
-                item.getQuantity()
-        );
+        return CartItemResponse.of(item, productService.toResponse(item.getProduct()));
     }
 
     public CartItemResponse updateItem(User user, Long cartItemId, UpdateCartItemRequest request) {
@@ -97,11 +93,7 @@ public class CartService {
         cart.setUpdatedAt(Instant.now());
         cartRepository.save(cart);
 
-        return new CartItemResponse(
-                item.getId(),
-                productService.toResponse(item.getProduct()),
-                item.getQuantity()
-        );
+        return CartItemResponse.of(item, productService.toResponse(item.getProduct()));
     }
 
     public void removeItem(User user, Long cartItemId) {
@@ -158,11 +150,7 @@ public class CartService {
         return new CartResponse(
                 cart.getId(),
                 cart.getItems().stream()
-                        .map(item -> new CartItemResponse(
-                                item.getId(),
-                                productService.toResponse(item.getProduct()),
-                                item.getQuantity()
-                        ))
+                        .map(item -> CartItemResponse.of(item, productService.toResponse(item.getProduct())))
                         .toList(),
                 total
         );

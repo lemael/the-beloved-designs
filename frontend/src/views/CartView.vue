@@ -15,9 +15,10 @@ onMounted(fetchCart)
     <h1 class="font-heading">Mon panier</h1>
     <p v-if="items.length === 0">Votre panier est vide.</p>
     <ul v-else class="cart-list">
-      <li v-for="item in items" :key="item.product.id" class="cart-list__item">
+      <li v-for="item in items" :key="item.id" class="cart-list__item">
         <span>{{ item.product.name }} × {{ item.quantity }}</span>
-        <ProductPrice :price="item.product.price * item.quantity" :currency="item.product.currency" />
+        <!-- Prix fixé par le serveur (promo comprise) : jamais recalculé ici -->
+        <ProductPrice :price="item.lineTotal" :currency="item.product.currency" />
       </li>
     </ul>
     <div v-if="items.length > 0" class="cart-total">

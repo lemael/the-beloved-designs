@@ -13,5 +13,6 @@ export function useCart() {
     updateItem: store.updateItem,
     removeItem: store.removeItem,
     clearCart: store.clearCart,
+    reset: store.reset,
   }
 }

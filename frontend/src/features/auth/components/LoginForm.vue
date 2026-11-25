@@ -1,21 +1,24 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import BaseInput from '@/components/common/BaseInput.vue'
 import BaseButton from '@/components/common/BaseButton.vue'
 import { useAuth } from '@/composables/useAuth'
+import { safeRedirect } from '@/utils/redirect'
 
 const phone = ref('')
 const password = ref('')
 const error = ref<string | null>(null)
 const { login } = useAuth()
 const router = useRouter()
+const route = useRoute()
 
 async function onSubmit() {
   error.value = null
   try {
     await login({ phone: phone.value, password: password.value })
-    router.push('/')
+    // Retour à la page d'où vient le client (ex. fiche produit après « Ajouter au panier »)
+    router.push(safeRedirect(route.query.redirect))
   } catch {
     error.value = 'Numéro WhatsApp ou mot de passe incorrect.'
   }

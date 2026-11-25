@@ -88,7 +88,10 @@ class CartAddItemIntegrationTest extends AbstractApiIntegrationTest {
 
         addToCart(product.getId(), 2).andExpect(status().isCreated());
 
-        cart().andExpect(jsonPath("$.total").value(18000));
+        cart()
+                .andExpect(jsonPath("$.items[0].unitPrice").value(9000))
+                .andExpect(jsonPath("$.items[0].lineTotal").value(18000))
+                .andExpect(jsonPath("$.total").value(18000));
     }
 
     // --- Stock et disponibilité -----------------------------------------------------------------
