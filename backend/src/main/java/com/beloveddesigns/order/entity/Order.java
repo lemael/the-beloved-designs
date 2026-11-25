@@ -44,7 +44,12 @@ public class Order {
     @Builder.Default
     private BigDecimal deliveryFee = BigDecimal.ZERO;
 
-    /** subtotal - firstOrderDiscount + deliveryFee : montant à payer. */
+    /** Réduction accordée à la main par l'admin à la confirmation du paiement. */
+    @Column(name = "manual_discount", nullable = false, precision = 12, scale = 2)
+    @Builder.Default
+    private BigDecimal manualDiscount = BigDecimal.ZERO;
+
+    /** subtotal - firstOrderDiscount - manualDiscount + deliveryFee : montant à payer. */
     @Column(name = "total_amount", nullable = false, precision = 12, scale = 2)
     private BigDecimal totalAmount;
 

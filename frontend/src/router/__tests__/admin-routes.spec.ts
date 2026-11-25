@@ -30,6 +30,7 @@ describe('routes /admin', () => {
     ['/admin/products/new', 'admin-product-new'],
     ['/admin/stock', 'admin-stock'],
     ['/admin/restocks', 'admin-restocks'],
+    ['/admin/payments', 'admin-payments'],
     ['/admin/reports/yearly', 'admin-yearly-report'],
   ])('%s est une route protégée (%s)', (path, name) => {
     const resolved = router.resolve(path)

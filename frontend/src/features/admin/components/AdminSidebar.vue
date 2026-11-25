@@ -26,6 +26,7 @@ function onLogout() {
 
     <nav class="admin-sidebar__nav" aria-label="Menu administration">
       <RouterLink :to="{ name: 'admin-dashboard' }" @click="emit('navigate')">Tableau de bord</RouterLink>
+      <RouterLink :to="{ name: 'admin-payments' }" @click="emit('navigate')">Confirmation paiement</RouterLink>
       <RouterLink :to="{ name: 'admin-product-new' }" @click="emit('navigate')">Créer un nouveau produit</RouterLink>
 
       <p class="admin-sidebar__section">Produits</p>

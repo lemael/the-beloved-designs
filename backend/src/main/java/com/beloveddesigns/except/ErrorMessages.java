@@ -66,6 +66,12 @@ public final class ErrorMessages {
         return "« " + productName + " » n'est plus disponible : retirez-le du panier pour continuer";
     }
 
+    public static String orderNotPending(Long id, String status) {
+        return "La commande n°" + id + " n'est plus en attente de paiement (statut : " + status + ")";
+    }
+
+    public static final String DISCOUNT_ABOVE_SUBTOTAL = "La réduction ne peut pas dépasser le montant des articles";
+
     public static String orderNotFound(Long id) {
         return "Commande introuvable : " + id;
     }

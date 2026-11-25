@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
@@ -47,32 +46,19 @@ public class OrderWhatsappLink {
             BigDecimal lineTotal = item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
             m.append("• ").append(item.getProductName())
                     .append(" × ").append(item.getQuantity())
-                    .append(" — ").append(money(lineTotal, order)).append('\n');
+                    .append(" — ").append(FcfaFormat.money(lineTotal, order.getCurrency())).append('\n');
         }
-        m.append('\n').append("Sous-total : ").append(money(order.getSubtotal(), order)).append('\n');
+        m.append('\n').append("Sous-total : ").append(FcfaFormat.money(order.getSubtotal(), order.getCurrency())).append('\n');
         if (order.getFirstOrderDiscount().signum() > 0) {
-            m.append("Réduction première commande : -").append(money(order.getFirstOrderDiscount(), order)).append('\n');
+            m.append("Réduction première commande : -").append(FcfaFormat.money(order.getFirstOrderDiscount(), order.getCurrency())).append('\n');
         }
         m.append("Livraison : ")
-                .append(order.getDeliveryFee().signum() == 0 ? "offerte" : money(order.getDeliveryFee(), order))
+                .append(order.getDeliveryFee().signum() == 0 ? "offerte" : FcfaFormat.money(order.getDeliveryFee(), order.getCurrency()))
                 .append('\n');
-        m.append("Total à payer : ").append(money(order.getTotalAmount(), order)).append("\n\n");
+        m.append("Total à payer : ").append(FcfaFormat.money(order.getTotalAmount(), order.getCurrency())).append("\n\n");
         m.append("Livraison à ").append(order.getDeliveryCity()).append(", quartier ").append(order.getDeliveryDistrict()).append('\n');
         m.append("Numéro à appeler : ").append(order.getDeliveryContactPhone());
         return m.toString();
     }
 
-    /** 28500 → « 28 500 FCFA » (espace simple : lisible partout, y compris dans WhatsApp). */
-    static String money(BigDecimal amount, Order order) {
-        String digits = amount.setScale(0, RoundingMode.HALF_UP).toPlainString();
-        boolean negative = digits.startsWith("-");
-        if (negative) {
-            digits = digits.substring(1);
-        }
-        StringBuilder grouped = new StringBuilder(digits);
-        for (int i = grouped.length() - 3; i > 0; i -= 3) {
-            grouped.insert(i, ' ');
-        }
-        return (negative ? "-" : "") + grouped + " " + order.getCurrency();
-    }
 }

@@ -3,7 +3,10 @@ import type { Page } from '@/types/product.types'
 import type {
   AdminDashboard,
   AdminProduct,
+  ConfirmPaymentPayload,
   CreateProductPayload,
+  OrderPaymentPrefill,
+  PaymentConfirmation,
   CreateRestockPayload,
   Restock,
   RestockStatus,
@@ -54,6 +57,23 @@ export const adminService = {
 
   async cancelRestock(id: number): Promise<Restock> {
     const { data } = await api.post<Restock>(`/admin/restocks/${id}/cancel`)
+    return data
+  },
+
+  /** Confirmation paiement : commande du site à pré-remplir (404 si le n° n'existe pas). */
+  async paymentPrefill(orderId: number): Promise<OrderPaymentPrefill> {
+    const { data } = await api.get<OrderPaymentPrefill>(`/admin/payments/orders/${orderId}`)
+    return data
+  },
+
+  /** Tarif de livraison proposé (grille par ville, 0 dès 50 000 FCFA). */
+  async deliveryFeeQuote(city: string, amount: number): Promise<number> {
+    const { data } = await api.get<{ deliveryFee: number }>('/admin/payments/delivery-fee', { params: { city, amount } })
+    return data.deliveryFee
+  },
+
+  async confirmPayment(payload: ConfirmPaymentPayload): Promise<PaymentConfirmation> {
+    const { data } = await api.post<PaymentConfirmation>('/admin/payments', payload)
     return data
   },
 

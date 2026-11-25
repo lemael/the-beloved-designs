@@ -33,14 +33,20 @@ public class OrderPricing {
     }
 
     public Amounts compute(BigDecimal subtotal, boolean firstOrder, String deliveryCity) {
-        BigDecimal discount = firstOrder
-                ? subtotal.multiply(firstOrderDiscountPercent).divide(BigDecimal.valueOf(100), 0, RoundingMode.HALF_UP)
-                : BigDecimal.ZERO;
+        BigDecimal discount = firstOrder ? firstOrderDiscount(subtotal) : BigDecimal.ZERO;
         BigDecimal afterDiscount = subtotal.subtract(discount);
-        BigDecimal deliveryFee = afterDiscount.compareTo(freeDeliveryThreshold) >= 0
-                ? BigDecimal.ZERO
-                : deliveryFeeFor(deliveryCity);
+        BigDecimal deliveryFee = deliveryFee(afterDiscount, deliveryCity);
         return new Amounts(subtotal, discount, deliveryFee, afterDiscount.add(deliveryFee));
+    }
+
+    /** Réduction de première commande sur un sous-total d'articles, arrondie au FCFA. */
+    public BigDecimal firstOrderDiscount(BigDecimal subtotal) {
+        return subtotal.multiply(firstOrderDiscountPercent).divide(BigDecimal.valueOf(100), 0, RoundingMode.HALF_UP);
+    }
+
+    /** Frais de livraison pour un montant d'articles (après réductions) : 0 à partir du seuil, sinon tarif de la ville. */
+    public BigDecimal deliveryFee(BigDecimal amountAfterDiscount, String deliveryCity) {
+        return amountAfterDiscount.compareTo(freeDeliveryThreshold) >= 0 ? BigDecimal.ZERO : deliveryFeeFor(deliveryCity);
     }
 
     private BigDecimal deliveryFeeFor(String city) {

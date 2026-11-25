@@ -94,6 +94,11 @@ const router = createRouter({
           component: () => import('@/views/admin/AdminRestockView.vue'),
         },
         {
+          path: 'payments',
+          name: 'admin-payments',
+          component: () => import('@/views/admin/AdminPaymentConfirmView.vue'),
+        },
+        {
           path: 'reports/yearly',
           name: 'admin-yearly-report',
           component: () => import('@/views/admin/AdminYearlyReportView.vue'),

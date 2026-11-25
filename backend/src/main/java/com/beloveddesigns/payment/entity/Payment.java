@@ -6,6 +6,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "payments")
@@ -37,6 +38,10 @@ public class Payment {
     @Column(nullable = false, length = 10)
     @Builder.Default
     private String currency = "FCFA";
+
+    /** Date du paiement saisie par l'admin. */
+    @Column(name = "paid_on")
+    private LocalDate paidOn;
 
     @Column(name = "transaction_ref")
     private String transactionRef;

@@ -4,6 +4,9 @@ import com.beloveddesigns.product.entity.Product;
 import com.beloveddesigns.product.repository.ProductRepository;
 import com.beloveddesigns.promotion.entity.Promotion;
 import com.beloveddesigns.promotion.repository.PromotionRepository;
+import com.beloveddesigns.user.entity.User;
+import com.beloveddesigns.user.repository.RoleRepository;
+import com.beloveddesigns.user.repository.UserRepository;
 import com.jayway.jsonpath.JsonPath;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -40,9 +43,24 @@ public abstract class AbstractApiIntegrationTest extends AbstractIntegrationTest
     @Autowired
     protected PromotionRepository promotionRepository;
 
+    @Autowired
+    protected UserRepository userRepository;
+
+    @Autowired
+    protected RoleRepository roleRepository;
+
+    /** Numéro unique au format international, ex. +237600123456. */
+    protected static String uniquePhone() {
+        return "+2376" + String.format("%08d", SEQUENCE.incrementAndGet());
+    }
+
     /** Inscrit un nouveau client par l'API publique et renvoie son jeton d'accès. */
     protected String registerCustomer() throws Exception {
-        String phone = "+2376" + String.format("%08d", SEQUENCE.incrementAndGet());
+        return registerCustomer(uniquePhone());
+    }
+
+    /** Inscrit un client avec ce numéro et renvoie son jeton d'accès. */
+    protected String registerCustomer(String phone) throws Exception {
         String body = """
                 {"phone": "%s", "password": "motdepasse-test", "firstName": "Test", "lastName": "Client"}
                 """.formatted(phone);
@@ -52,6 +70,19 @@ public abstract class AbstractApiIntegrationTest extends AbstractIntegrationTest
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
         return JsonPath.read(response, "$.accessToken");
+    }
+
+    /**
+     * Compte administrateur : client inscrit puis rôle ADMIN ajouté en base. Le filtre JWT relit les
+     * rôles en base à chaque requête, le jeton obtenu à l'inscription suffit.
+     */
+    protected String registerAdmin() throws Exception {
+        String phone = uniquePhone();
+        String token = registerCustomer(phone);
+        User admin = userRepository.findByPhone(phone).orElseThrow();
+        admin.getRoles().add(roleRepository.findByName("ADMIN").orElseThrow());
+        userRepository.save(admin);
+        return token;
     }
 
     protected static String bearer(String token) {

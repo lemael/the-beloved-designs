@@ -36,6 +36,11 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.CONFLICT, "PRODUCT_UNAVAILABLE", ex.getMessage(), request, null);
     }
 
+    @ExceptionHandler(OrderNotPendingException.class)
+    public ResponseEntity<ApiError> handleOrderNotPending(OrderNotPendingException ex, HttpServletRequest request) {
+        return buildResponse(HttpStatus.CONFLICT, "ORDER_NOT_PENDING", ex.getMessage(), request, null);
+    }
+
     @ExceptionHandler(EmptyCartException.class)
     public ResponseEntity<ApiError> handleEmptyCart(EmptyCartException ex, HttpServletRequest request) {
         return buildResponse(HttpStatus.BAD_REQUEST, "EMPTY_CART", ex.getMessage(), request, null);

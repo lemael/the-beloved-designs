@@ -1,3 +1,5 @@
+import type { OrderStatus } from './order.types'
+
 export interface AdminProductVariant {
   id: number
   size: string | null
@@ -96,4 +98,64 @@ export interface AdminDashboard {
   revenueThisYear: number
   ordersThisYear: number
   currency: string
+}
+
+// ---- Confirmation paiement (décision du 2026-11-25) ----
+
+export type PaymentMethod = 'CASH' | 'MTN_MOMO' | 'ORANGE_MONEY' | 'BANK_TRANSFER'
+
+export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
+  CASH: 'Espèces',
+  MTN_MOMO: 'MTN Mobile Money',
+  ORANGE_MONEY: 'Orange Money',
+  BANK_TRANSFER: 'Virement bancaire',
+}
+
+/** Commande du site chargée dans le formulaire (saisie du n° de commande). */
+export interface OrderPaymentPrefill {
+  orderId: number
+  status: OrderStatus
+  customerWhatsapp: string
+  deliveryCity: string | null
+  deliveryDistrict: string | null
+  deliveryFee: number
+  subtotal: number
+  firstOrderDiscount: number
+  total: number
+  items: { productId: number; productName: string; categorySlug: string | null; quantity: number; unitPrice: number }[]
+}
+
+export interface ConfirmPaymentPayload {
+  /** Absent : vente directe */
+  orderId: number | null
+  customerWhatsapp: string
+  items: { productId: number; quantity: number }[]
+  deliveryCity: string | null
+  deliveryDistrict: string | null
+  deliveryFee: number
+  discount: number
+  amountPaid: number
+  paymentMethod: PaymentMethod
+  /** AAAA-MM-JJ */
+  paidOn: string
+}
+
+export interface PaymentConfirmation {
+  orderId: number
+  paymentId: number
+  status: OrderStatus
+  customerWhatsapp: string
+  deliveryCity: string | null
+  deliveryDistrict: string | null
+  items: { productId: number; productName: string; quantity: number; unitPrice: number; lineTotal: number }[]
+  subtotal: number
+  firstOrderDiscount: number
+  discount: number
+  deliveryFee: number
+  total: number
+  amountPaid: number
+  paymentMethod: PaymentMethod
+  paidOn: string
+  /** Lien wa.me vers le WhatsApp du client, reçu pré-rempli */
+  receiptWhatsappUrl: string
 }
