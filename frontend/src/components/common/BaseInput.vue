@@ -3,6 +3,7 @@ defineProps<{
   modelValue: string
   label?: string
   type?: string
+  placeholder?: string
   error?: string
 }>()
 
@@ -14,6 +15,8 @@ defineEmits<{ 'update:modelValue': [value: string] }>()
     <span v-if="label" class="base-input__label">{{ label }}</span>
     <input
       :type="type ?? 'text'"
+      :placeholder="placeholder"
+      :aria-invalid="error ? 'true' : undefined"
       :value="modelValue"
       @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
     />

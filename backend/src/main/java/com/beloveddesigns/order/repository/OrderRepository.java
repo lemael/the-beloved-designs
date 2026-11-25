@@ -1,6 +1,7 @@
 package com.beloveddesigns.order.repository;
 
 import com.beloveddesigns.order.entity.Order;
+import com.beloveddesigns.order.entity.OrderStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,10 +10,17 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
     Page<Order> findByUserId(Long userId, Pageable pageable);
+
+    /** Commande d'un client donné : un client ne voit jamais celle d'un autre. */
+    Optional<Order> findByIdAndUserId(Long id, Long userId);
+
+    /** Le client a-t-il déjà une commande non annulée ? (réduction de première commande) */
+    boolean existsByUserIdAndStatusNot(Long userId, OrderStatus status);
 
     // ---- Bilan annuel (back-office admin) ----
     // Seules les commandes payées / expédiées / livrées comptent dans le chiffre d'affaires.

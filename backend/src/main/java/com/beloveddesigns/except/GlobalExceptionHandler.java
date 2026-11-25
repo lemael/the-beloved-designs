@@ -12,6 +12,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.Instant;
 import java.util.List;
@@ -28,6 +29,22 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InsufficientStockException.class)
     public ResponseEntity<ApiError> handleInsufficientStock(InsufficientStockException ex, HttpServletRequest request) {
         return buildResponse(HttpStatus.CONFLICT, "INSUFFICIENT_STOCK", ex.getMessage(), request, null);
+    }
+
+    @ExceptionHandler(ProductUnavailableException.class)
+    public ResponseEntity<ApiError> handleProductUnavailable(ProductUnavailableException ex, HttpServletRequest request) {
+        return buildResponse(HttpStatus.CONFLICT, "PRODUCT_UNAVAILABLE", ex.getMessage(), request, null);
+    }
+
+    @ExceptionHandler(EmptyCartException.class)
+    public ResponseEntity<ApiError> handleEmptyCart(EmptyCartException ex, HttpServletRequest request) {
+        return buildResponse(HttpStatus.BAD_REQUEST, "EMPTY_CART", ex.getMessage(), request, null);
+    }
+
+    /** Route d'API inconnue : 404 (avant : attrapée par le gestionnaire générique → 500). */
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ApiError> handleNoRoute(NoResourceFoundException ex, HttpServletRequest request) {
+        return buildResponse(HttpStatus.NOT_FOUND, "NOT_FOUND", ErrorMessages.ROUTE_NOT_FOUND, request, null);
     }
 
     @ExceptionHandler(AuthenticationCredentialsNotFoundException.class)

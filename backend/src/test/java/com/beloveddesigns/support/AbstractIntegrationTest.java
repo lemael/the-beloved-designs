@@ -36,5 +36,10 @@ public abstract class AbstractIntegrationTest {
         registry.add("spring.datasource.url", () -> POSTGRES.getJdbcUrl() + "&currentSchema=beloved_designs");
         registry.add("spring.datasource.username", POSTGRES::getUsername);
         registry.add("spring.datasource.password", POSTGRES::getPassword);
+        // Numéro WhatsApp fictif de la boutique (en prod : variable ADMIN_WHATSAPP sur Railway).
+        registry.add("app.orders.admin-whatsapp", () -> ADMIN_WHATSAPP);
     }
+
+    /** Numéro WhatsApp de la boutique utilisé par les tests de commande. */
+    protected static final String ADMIN_WHATSAPP = "+237600000001";
 }

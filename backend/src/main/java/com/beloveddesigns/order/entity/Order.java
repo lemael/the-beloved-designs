@@ -32,8 +32,32 @@ public class Order {
     @Builder.Default
     private OrderStatus status = OrderStatus.PENDING;
 
+    /** Somme des articles au prix du jour (promo comprise), avant réduction de première commande. */
+    @Column(nullable = false, precision = 12, scale = 2)
+    private BigDecimal subtotal;
+
+    @Column(name = "first_order_discount", nullable = false, precision = 12, scale = 2)
+    @Builder.Default
+    private BigDecimal firstOrderDiscount = BigDecimal.ZERO;
+
+    @Column(name = "delivery_fee", nullable = false, precision = 12, scale = 2)
+    @Builder.Default
+    private BigDecimal deliveryFee = BigDecimal.ZERO;
+
+    /** subtotal - firstOrderDiscount + deliveryFee : montant à payer. */
     @Column(name = "total_amount", nullable = false, precision = 12, scale = 2)
     private BigDecimal totalAmount;
+
+    // Livraison, figée sur la commande (saisie par le client au moment de commander)
+    @Column(name = "delivery_city", length = 100)
+    private String deliveryCity;
+
+    @Column(name = "delivery_district", length = 150)
+    private String deliveryDistrict;
+
+    /** Numéro WhatsApp que le livreur appellera (peut différer du numéro du compte). */
+    @Column(name = "delivery_contact_phone", length = 20)
+    private String deliveryContactPhone;
 
     @Column(nullable = false, length = 10)
     @Builder.Default
